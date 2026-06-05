@@ -2,31 +2,43 @@ version: '3.8'
 
 services:
   python-classifier:
-    build: ./python-classifier
+    build: ./python-services/credit-services
     container_name: python-classifier
-    networks:
-      - classifier-net
-
-  service-java:
-    build: ./service-java
-    container_name: service-java
     ports:
-      - "8080:8080"
+      - "8000:8000"
+    networks:
+      - risk-net
+
+  ms-service-credit:
+    build: ./ms-service-credit
+    container_name: ms-service-credit
+    ports:
+      - "8081:8081"
     environment:
       - PYTHON_CLASSIFIER_URL=http://python-classifier:8000
     depends_on:
       - python-classifier
     networks:
-      - classifier-net
+      - risk-net
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ms-service-credit
+    networks:
+      - risk-net
 
   frontend:
-    build: ./frontend
+    build: ./frontend-simple
     container_name: frontend
     ports:
       - "80:80"
     networks:
-      - classifier-net
+      - risk-net
 
 networks:
-  classifier-net:
+  risk-net:
     driver: bridge
