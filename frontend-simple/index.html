@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Classificador de Risco de Crédito - Empresas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>🏢 Classificador de Risco de Crédito</h2>
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5>Dados da empresa</h5>
+            <form id="riskForm">
+                <div class="mb-3">
+                    <label>Receita Anual (R$)</label>
+                    <input type="number" class="form-control" id="receita" required>
+                </div>
+                <div class="mb-3">
+                    <label>Dívida Total (R$)</label>
+                    <input type="number" class="form-control" id="divida" required>
+                </div>
+                <div class="mb-3">
+                    <label>Lucro Líquido (R$)</label>
+                    <input type="number" class="form-control" id="lucro" required>
+                </div>
+                <div class="mb-3">
+                    <label>Tempo de Mercado (anos)</label>
+                    <input type="number" class="form-control" id="tempo" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Classificar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="result" class="mt-4" style="display:none;">
+        <div class="alert" id="riskAlert">
+            <h4>Resultado:</h4>
+            <p><strong>Risco:</strong> <span id="riscoText"></span></p>
+            <p><strong>Probabilidades:</strong></p>
+            <ul id="probsList"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('riskForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            receitaAnual: parseFloat(document.getElementById('receita').value),
+            dividaTotal: parseFloat(document.getElementById('divida').value),
+            lucroLiquido: parseFloat(document.getElementById('lucro').value),
+            tempoMercado: parseInt(document.getElementById('tempo').value)
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/api/credit/classify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            const risco = result.riscoCredito;
+            let alertClass = '';
+            if (risco === 'baixo') alertClass = 'alert-success';
+            else if (risco === 'medio') alertClass = 'alert-warning';
+            else alertClass = 'alert-danger';
+
+            document.getElementById('riskAlert').className = `alert ${alertClass}`;
+            document.getElementById('riscoText').innerText = risco.toUpperCase();
+            const probs = result.probabilidades;
+            let probsHtml = '';
+            for (const [k,v] of Object.entries(probs)) {
+                probsHtml += `<li>${k}: ${(v*100).toFixed(2)}%</li>`;
+            }
+            document.getElementById('probsList').innerHTML = probsHtml;
+            document.getElementById('result').style.display = 'block';
+        } catch (err) {
+            alert('Erro ao classificar: ' + err.message);
+        }
+    });
+</script>
+</body>
+</html>

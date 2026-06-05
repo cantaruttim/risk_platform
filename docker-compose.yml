@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  python-classifier:
+    build: ./python-classifier
+    container_name: python-classifier
+    networks:
+      - classifier-net
+
+  service-java:
+    build: ./service-java
+    container_name: service-java
+    ports:
+      - "8080:8080"
+    environment:
+      - PYTHON_CLASSIFIER_URL=http://python-classifier:8000
+    depends_on:
+      - python-classifier
+    networks:
+      - classifier-net
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - classifier-net
+
+networks:
+  classifier-net:
+    driver: bridge
