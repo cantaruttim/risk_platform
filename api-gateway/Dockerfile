@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-slim
+FROM bellsoft/liberica-openjdk-debian:17
 WORKDIR /app
 COPY target/api-gateway-*.jar app.jar
 EXPOSE 8080

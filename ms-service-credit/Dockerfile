@@ -1,5 +1,5 @@
-FROM openjdk:17-jdk-slim
+FROM bellsoft/liberica-openjdk-debian:17
 WORKDIR /app
-COPY target/service-classifier-1.0.0.jar app.jar
+COPY target/ms-service-credit-4.0.6.jar app.jar 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
