@@ -12,7 +12,7 @@ import br.com.cantarutti.ms_credit_service.records.RiskResponse;
 import br.com.cantarutti.ms_credit_service.service.CreditService;
 
 @RestController
-@RequestMapping("/api/credit")
+@RequestMapping("/api/credit/")
 @CrossOrigin(origins = "*") 
 public class CreditController {
     @Autowired
