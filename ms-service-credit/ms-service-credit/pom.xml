@@ -19,6 +19,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
@@ -31,7 +37,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
             <configuration>
-                <mainClass>br.com.cantarutti.credit.MsCreditServiceApplication</mainClass>
+                <mainClass>br.com.cantarutti.ms_credit_service.MsCreditServiceApplication</mainClass>
             </configuration>
         </plugin>
     </plugins>

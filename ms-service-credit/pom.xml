@@ -8,7 +8,7 @@
         <groupId>br.com.cantarutti</groupId>
         <artifactId>company_finance_risk_management_platform</artifactId>
         <version>4.0.6</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>ms-service-credit</artifactId>
@@ -19,6 +19,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
@@ -31,7 +39,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>br.com.cantarutti.credit.MsCreditServiceApplication</mainClass>
+                    <mainClass>br.com.cantarutti.ms_credit_service.MsCreditServiceApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
