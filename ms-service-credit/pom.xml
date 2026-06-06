@@ -8,7 +8,7 @@
         <groupId>br.com.cantarutti</groupId>
         <artifactId>company_finance_risk_management_platform</artifactId>
         <version>4.0.6</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>ms-service-credit</artifactId>
@@ -25,7 +25,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
 
         <dependency>
             <groupId>org.springframework.cloud</groupId>

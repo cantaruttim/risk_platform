@@ -1,0 +1,6 @@
+server:
+  port: 8080
+
+python:
+  classifier:
+    url: http://python-classifier:8000
