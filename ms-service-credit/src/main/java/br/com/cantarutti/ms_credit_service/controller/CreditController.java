@@ -1,7 +1,6 @@
 package br.com.cantarutti.ms_credit_service.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +12,6 @@ import br.com.cantarutti.ms_credit_service.service.CreditService;
 
 @RestController
 @RequestMapping("/api/credit/")
-@CrossOrigin(origins = "*") 
 public class CreditController {
     @Autowired
     private CreditService creditService;

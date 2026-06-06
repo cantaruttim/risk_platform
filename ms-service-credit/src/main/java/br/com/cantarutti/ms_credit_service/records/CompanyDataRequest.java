@@ -1,9 +1,19 @@
 package br.com.cantarutti.ms_credit_service.records;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CompanyDataRequest {
+
+    @JsonProperty("receita_anual")
     private double receitaAnual;
+
+    @JsonProperty("divida_total")
     private double dividaTotal;
+
+    @JsonProperty("lucro_liquido")
     private double lucroLiquido;
+
+    @JsonProperty("tempo_mercado")
     private int tempoMercado;
 
     public double getReceitaAnual() { return receitaAnual; }

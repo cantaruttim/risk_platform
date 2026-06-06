@@ -2,8 +2,13 @@ package br.com.cantarutti.ms_credit_service.records;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class RiskResponse {
- private String riscoCredito;
+
+    @JsonProperty("risco_credito")
+    private String riscoCredito;
+    @JsonProperty("probabilidades")
     private Map<String, Double> probabilidades;
 
     public String getRiscoCredito() { return riscoCredito; }
