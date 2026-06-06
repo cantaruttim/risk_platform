@@ -2,6 +2,7 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classificador de Risco de Crédito - Empresas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -14,26 +15,34 @@
             <form id="riskForm">
                 <div class="mb-3">
                     <label>Receita Anual (R$)</label>
-                    <input type="number" class="form-control" id="receita" required>
+                    <input type="number" class="form-control" id="receita" step="any" required>
                 </div>
                 <div class="mb-3">
                     <label>Dívida Total (R$)</label>
-                    <input type="number" class="form-control" id="divida" required>
+                    <input type="number" class="form-control" id="divida" step="any" required>
                 </div>
                 <div class="mb-3">
                     <label>Lucro Líquido (R$)</label>
-                    <input type="number" class="form-control" id="lucro" required>
+                    <input type="number" class="form-control" id="lucro" step="any" required>
                 </div>
                 <div class="mb-3">
                     <label>Tempo de Mercado (anos)</label>
                     <input type="number" class="form-control" id="tempo" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Classificar</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">Classificar</button>
+                <button type="button" class="btn btn-secondary" id="testGatewayBtn" style="display: none;">Testar Conexão</button>
             </form>
         </div>
     </div>
 
-    <div id="result" class="mt-4" style="display:none;">
+    <div id="loading" class="mt-3 text-center" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+        <p>Processando...</p>
+    </div>
+
+    <div id="result" class="mt-4" style="display: none;">
         <div class="alert" id="riskAlert">
             <h4>Resultado:</h4>
             <p><strong>Risco:</strong> <span id="riscoText"></span></p>
@@ -44,22 +53,73 @@
 </div>
 
 <script>
-    document.getElementById('riskForm').addEventListener('submit', async (e) => {
+    // ============================================================
+    // CONFIGURAÇÃO DO BACKEND (AJUSTE CONFORME SEU AMBIENTE)
+    // ============================================================
+    // Se estiver rodando o frontend dentro do Docker, use o nome do serviço do gateway:
+    // const API_URL = 'http://api-gateway:8080/api/credit/classify';
+    // 
+    // Se estiver rodando o frontend localmente (arquivo .html aberto no navegador)
+    // e o gateway estiver mapeado na porta 8080 do host:
+    const API_URL = 'http://localhost:8080/api/credit/classify';
+    // ============================================================
+
+    const form = document.getElementById('riskForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingDiv = document.getElementById('loading');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Coleta e validação básica
+        const receita = parseFloat(document.getElementById('receita').value);
+        const divida = parseFloat(document.getElementById('divida').value);
+        const lucro = parseFloat(document.getElementById('lucro').value);
+        const tempo = parseInt(document.getElementById('tempo').value, 10);
+
+        if (isNaN(receita) || isNaN(divida) || isNaN(lucro) || isNaN(tempo)) {
+            alert('Por favor, preencha todos os campos corretamente.');
+            return;
+        }
+
         const data = {
-            receitaAnual: parseFloat(document.getElementById('receita').value),
-            dividaTotal: parseFloat(document.getElementById('divida').value),
-            lucroLiquido: parseFloat(document.getElementById('lucro').value),
-            tempoMercado: parseInt(document.getElementById('tempo').value)
+            receitaAnual: receita,
+            dividaTotal: divida,
+            lucroLiquido: lucro,
+            tempoMercado: tempo
         };
 
+        // Desabilita botão e mostra loading
+        submitBtn.disabled = true;
+        loadingDiv.style.display = 'block';
+        resultDiv.style.display = 'none';
+
         try {
-            const response = await fetch('http://localhost:8080/api/credit/classify', {
+            const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
+
+            // Verifica se a resposta é OK (status 2xx)
+            if (!response.ok) {
+                let errorMsg = `HTTP ${response.status} ${response.statusText}`;
+                try {
+                    const errorBody = await response.text();
+                    errorMsg += ` - ${errorBody}`;
+                } catch (e) {
+                    // ignore
+                }
+                throw new Error(errorMsg);
+            }
+
             const result = await response.json();
+
+            // Valida se recebeu os campos esperados
+            if (!result.riscoCredito || !result.probabilidades) {
+                throw new Error('Resposta do servidor com formato inesperado');
+            }
 
             const risco = result.riscoCredito;
             let alertClass = '';
@@ -67,19 +127,60 @@
             else if (risco === 'medio') alertClass = 'alert-warning';
             else alertClass = 'alert-danger';
 
-            document.getElementById('riskAlert').className = `alert ${alertClass}`;
+            const riskAlert = document.getElementById('riskAlert');
+            riskAlert.className = `alert ${alertClass}`;
             document.getElementById('riscoText').innerText = risco.toUpperCase();
+
             const probs = result.probabilidades;
             let probsHtml = '';
-            for (const [k,v] of Object.entries(probs)) {
-                probsHtml += `<li>${k}: ${(v*100).toFixed(2)}%</li>`;
+            for (const [k, v] of Object.entries(probs)) {
+                probsHtml += `<li>${k}: ${(v * 100).toFixed(2)}%</li>`;
             }
             document.getElementById('probsList').innerHTML = probsHtml;
-            document.getElementById('result').style.display = 'block';
+
+            resultDiv.style.display = 'block';
         } catch (err) {
-            alert('Erro ao classificar: ' + err.message);
+            console.error('Erro detalhado:', err);
+            let userMessage = `Erro ao classificar: ${err.message}`;
+            // Dicas amigáveis para problemas comuns
+            if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                userMessage = `❌ Não foi possível conectar ao backend.\n\n` +
+                    `Verifique se:\n` +
+                    `1. O API Gateway está rodando e acessível em: ${API_URL}\n` +
+                    `2. Se estiver usando Docker, o frontend e o gateway estão na mesma rede.\n` +
+                    `3. O CORS está configurado no backend/gateway.\n` +
+                    `4. A porta 8080 está exposta corretamente.\n\n` +
+                    `Erro original: ${err.message}`;
+            } else if (err.message.includes('HTTP 404')) {
+                userMessage = `❌ Endpoint não encontrado (404).\n` +
+                    `Confirme se a URL está correta: ${API_URL}\n` +
+                    `Verifique o roteamento do API Gateway.`;
+            } else if (err.message.includes('HTTP 500')) {
+                userMessage = `❌ Erro interno no servidor (500).\n` +
+                    `Verifique os logs do backend Java e do gateway.`;
+            }
+            alert(userMessage);
+        } finally {
+            // Reabilita botão e esconde loading
+            submitBtn.disabled = false;
+            loadingDiv.style.display = 'none';
         }
     });
+
+    // Função auxiliar para testar conectividade (opcional)
+    // Descomente se quiser exibir o botão "Testar Conexão" e implemente
+    const testBtn = document.getElementById('testGatewayBtn');
+    if (testBtn) {
+        testBtn.style.display = 'inline-block';
+        testBtn.addEventListener('click', async () => {
+            try {
+                const res = await fetch(API_URL, { method: 'OPTIONS' });
+                alert(`Conexão OK. Status: ${res.status}`);
+            } catch (err) {
+                alert(`Falha na conexão: ${err.message}`);
+            }
+        });
+    }
 </script>
 </body>
 </html>

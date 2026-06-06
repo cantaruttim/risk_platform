@@ -4,23 +4,22 @@ server:
 spring:
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "*"
+            allowed-methods: "*"
+            allowed-headers: "*"
+            allow-credentials: true
       routes:
         # Rota para o serviço de crédito
         - id: credit-service
           uri: http://ms-service-credit:8081   # nome do container no Docker
           predicates:
             - Path=/api/credit/**
-          filters:
-            - StripPrefix=1   # remove o prefixo /api antes de encaminhar
 
         # Rota para o serviço de forecasting
         - id: forecast-service
           uri: http://ms-service-forecast:8082
           predicates:
             - Path=/api/forecast/**
-          filters:
-            - StripPrefix=1
-
-        # (Opcional) Rota para servir o frontend estático?
-        # Geralmente o frontend é servido por Nginx separado na porta 80,
-        # então não precisa passar pelo gateway.

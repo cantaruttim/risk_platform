@@ -31,7 +31,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>br.com.cantarutti.api_gateway.gateway.GatewayApplication</mainClass>
+                    <mainClass>br.com.api_gateway.gateway.GatewayApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
