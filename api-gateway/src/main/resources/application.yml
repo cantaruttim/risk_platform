@@ -1,5 +1,5 @@
 server:
-  port: 8080   # porta onde o gateway vai escutar
+  port: 8080
 
 spring:
   cloud:
@@ -7,18 +7,25 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowed-origins: "*"
-            allowed-methods: "*"
+            allowed-origins:
+              - "http://localhost"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
             allowed-headers: "*"
             allow-credentials: true
+
       routes:
-        # Rota para o serviço de crédito
+        # Serviço de Crédito
         - id: credit-service
-          uri: http://ms-service-credit:8081   # nome do container no Docker
+          uri: http://ms-service-credit:8081
           predicates:
             - Path=/api/credit/**
 
-        # Rota para o serviço de forecasting
+        # Serviço de Forecast
         - id: forecast-service
           uri: http://ms-service-forecast:8082
           predicates:
