@@ -84,10 +84,10 @@
         }
 
         const data = {
-            receitaAnual: receita,
-            dividaTotal: divida,
-            lucroLiquido: lucro,
-            tempoMercado: tempo
+            receita_anual: receita,
+            divida_total: divida,
+            lucro_liquido: lucro,
+            tempo_mercado: tempo
         };
 
         // Desabilita botão e mostra loading
@@ -117,11 +117,11 @@
             const result = await response.json();
 
             // Valida se recebeu os campos esperados
-            if (!result.riscoCredito || !result.probabilidades) {
+            if (!result.risco_credito || !result.probabilidades) {
                 throw new Error('Resposta do servidor com formato inesperado');
             }
 
-            const risco = result.riscoCredito;
+            const risco = result.risco_credito;
             let alertClass = '';
             if (risco === 'baixo') alertClass = 'alert-success';
             else if (risco === 'medio') alertClass = 'alert-warning';
